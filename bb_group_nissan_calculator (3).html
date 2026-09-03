@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>BB Group | Nissan Vehicle Finance Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --bb-red: #d9251d;
+      --bb-red-hover: #b91c1c;
+      --bb-dark-bg: #090b0e;
+      --bb-card-bg: #11151c;
+    }
+    body {
+      background-color: var(--bb-dark-bg);
+      color: #f1f5f9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Prevent iOS auto-zoom on inputs */
+    input[type="number"], input[type="text"], select {
+      font-size: 16px !important; 
+    }
+    /* Range Slider Styling */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      background: #1f2937;
+      border-radius: 9999px;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      background: #d9251d;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(217, 37, 29, 0.5);
+    }
+    .scrollbar-none::-webkit-scrollbar {
+      display: none;
+    }
+    .scrollbar-none {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    .dynamic-list-enter {
+      animation: fadeIn 0.3s ease-out forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="min-h-screen py-4 sm:py-8 px-3 sm:px-6 flex flex-col justify-center items-center">
+
+  <div class="w-full max-w-4xl bg-[#11151c] border border-neutral-800/90 rounded-2xl shadow-2xl p-4 sm:p-8 relative overflow-hidden backdrop-blur-xl">
+    
+    <!-- Header Section with BB Group Branding -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-neutral-800">
+      <div class="flex items-center gap-3.5">
+        <div class="bg-[#d9251d] text-white font-extrabold px-3 py-1.5 rounded-lg text-lg tracking-wider shadow-lg shadow-red-900/40">
+          BB
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg sm:text-xl font-bold tracking-tight text-white">
+              Nissan Vehicle Finance
+            </h1>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 font-medium whitespace-nowrap">
+              FSP 49995
+            </span>
+          </div>
+          <p class="text-xs text-neutral-400 mt-0.5">
+            BB Motor Group • Official 2026 Price List & NCA Engine
+          </p>
+        </div>
+      </div>
+
+      <div class="text-left sm:text-right text-xs text-neutral-400">
+        <div class="text-neutral-200 font-medium">SA Prime Rate: <span class="font-mono text-red-400 font-bold">11.75%</span></div>
+        <div class="text-[11px] text-neutral-500 mt-0.5">National Credit Act Compliant</div>
+      </div>
+    </div>
+
+    <!-- Vehicle Selection & Base Price -->
+    <div class="mt-6 mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="md:col-span-2">
+        <div class="flex justify-between items-center mb-2">
+          <label for="model-select" class="text-xs font-semibold uppercase tracking-wider text-neutral-300">
+            Select 2026 Nissan Model
+          </label>
+          <span id="selected-code-badge" class="text-[11px] font-mono text-neutral-400 bg-neutral-900 px-2 py-0.5 rounded border border-neutral-800 hidden sm:inline-block">
+            M&M: 47012211
+          </span>
+        </div>
+        <div class="relative">
+          <select id="model-select" class="w-full bg-[#171d26] border border-neutral-700/80 hover:border-neutral-600 rounded-xl px-4 py-3 text-sm text-white font-medium focus:border-[#d9251d] focus:outline-none transition appearance-none cursor-pointer pr-10"></select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-neutral-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <label class="text-xs font-semibold uppercase tracking-wider text-neutral-300">
+            Base Vehicle Price
+          </label>
+          <span class="text-[11px] font-mono text-neutral-500">Incl. VAT</span>
+        </div>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 text-sm font-mono font-semibold">R</span>
+          <input type="number" id="base-price-input" step="1000" class="w-full bg-[#171d26] border border-neutral-700/80 rounded-xl pl-8 pr-3 py-3 text-sm text-white font-mono focus:border-[#d9251d] focus:outline-none transition" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Dynamic Optional Extras Section -->
+    <div class="bg-[#141922] border border-neutral-800 rounded-xl p-4 sm:p-5 mb-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <div class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+          </svg>
+          <span class="text-xs sm:text-sm font-semibold text-white">Dealership Extras & On-The-Road</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span id="extras-total-badge" class="text-xs font-mono font-bold text-red-400 bg-red-500/10 px-2.5 py-1 rounded-md border border-red-500/20">
+            +R 0 incl. VAT
+          </span>
+          <button onclick="addExtra()" class="text-[11px] font-medium bg-neutral-800 hover:bg-neutral-700 text-neutral-200 border border-neutral-700 px-2.5 py-1 rounded transition active:scale-95 flex items-center gap-1">
+            <svg class="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Add
+          </button>
+        </div>
+      </div>
+
+      <!-- Dynamic List Container -->
+      <div id="extras-container" class="space-y-2">
+        <!-- Rendered via JS -->
+      </div>
+      
+      <!-- Gross OTR Readout -->
+      <div class="mt-4 pt-3 border-t border-neutral-800/80 flex justify-between items-center">
+        <span class="text-xs text-neutral-400">Total Gross OTR Invoice Amount:</span>
+        <span id="gross-otr-display" class="text-sm font-mono font-bold text-emerald-400 tracking-tight">R 0</span>
+      </div>
+    </div>
+
+    <!-- 3-Key Metrics Summary Section -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 border-y border-neutral-800 py-4 mb-3 bg-[#0c0f14] rounded-t-xl">
+      <div class="px-4 py-2 border-b sm:border-b-0 sm:border-r border-neutral-800 text-center">
+        <div class="text-[11px] uppercase tracking-wider text-neutral-400 font-semibold mb-1">
+          Estimated Monthly
+        </div>
+        <div id="metric-monthly" class="text-2xl sm:text-3xl font-extrabold font-mono text-emerald-400 tracking-tight">
+          R 0
+        </div>
+        <div id="metric-monthly-sub" class="text-[10px] text-neutral-500 mt-1">
+          Includes R69/pm bank admin fee
+        </div>
+      </div>
+
+      <div class="px-4 py-2 border-b sm:border-b-0 sm:border-r border-neutral-800 text-center">
+        <div class="text-[11px] uppercase tracking-wider text-neutral-400 font-semibold mb-1">
+          Total Interest & Fees
+        </div>
+        <div id="metric-interest" class="text-2xl sm:text-3xl font-extrabold font-mono text-red-400 tracking-tight">
+          R 0
+        </div>
+        <div id="metric-interest-sub" class="text-[10px] text-neutral-500 mt-1">
+          Interest: R 0 • Fees: R 0
+        </div>
+      </div>
+
+      <div class="px-4 py-2 text-center">
+        <div class="text-[11px] uppercase tracking-wider text-neutral-400 font-semibold mb-1">
+          Principal Financed
+        </div>
+        <div id="metric-principal" class="text-2xl sm:text-3xl font-extrabold font-mono text-blue-400 tracking-tight">
+          R 0
+        </div>
+        <div id="metric-balloon-sub" class="text-[10px] text-neutral-500 mt-1">
+          Balloon Due: R 0 (0%)
+        </div>
+      </div>
+    </div>
+
+    <!-- Deal Builder Qualifier Banner -->
+    <div class="mb-6 bg-blue-900/20 border border-blue-500/30 rounded-b-xl p-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left shadow-inner">
+      <div class="flex items-center gap-2.5">
+        <div class="p-1.5 bg-blue-500/20 rounded-lg text-blue-400">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <div>
+          <div class="text-[11px] font-semibold text-blue-300 uppercase tracking-wider">Estimated Minimum Qualifying Income</div>
+          <div class="text-[10px] text-neutral-400">Based on NCA 30% Deal Builder rule-of-thumb</div>
+        </div>
+      </div>
+      <div id="metric-qualifier" class="text-lg font-mono font-bold text-blue-400">
+        R 0 /pm
+      </div>
+    </div>
+
+    <!-- Interactive Finance Controls -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      
+      <!-- Deposit Input -->
+      <div class="flex flex-col gap-1.5">
+        <div class="flex justify-between items-center text-xs text-neutral-300">
+          <label class="font-medium">Deposit Paid (<span id="deposit-pct-label">0%</span>)</label>
+          <div class="flex gap-1">
+            <button type="button" onclick="setDepositPct(0)" class="text-[10px] px-1.5 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-300">0%</button>
+            <button type="button" onclick="setDepositPct(10)" class="text-[10px] px-1.5 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-300">10%</button>
+            <button type="button" onclick="setDepositPct(20)" class="text-[10px] px-1.5 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-300">20%</button>
+          </div>
+        </div>
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 text-sm font-mono font-semibold">R</span>
+          <input type="number" id="deposit-input" min="0" step="2500" class="w-full bg-[#171d26] border border-neutral-700/80 rounded-lg pl-8 pr-3 py-2.5 text-sm text-white font-mono focus:border-[#d9251d] focus:outline-none transition" />
+        </div>
+      </div>
+
+      <!-- Extended Loan Term Options (Up to 96 Months) -->
+      <div class="flex flex-col gap-1.5">
+        <div class="flex justify-between items-center text-xs text-neutral-300">
+          <label class="font-medium">Finance Term (<span id="term-label" class="font-mono text-white">72m / 6.0 yrs</span>)</label>
+        </div>
+        <div class="grid grid-cols-6 gap-1">
+          <button type="button" onclick="setTerm(36)" id="term-btn-36" class="py-2.5 rounded-lg text-xs font-mono font-medium border border-neutral-800 bg-[#171d26] text-neutral-400 hover:text-white transition">36</button>
+          <button type="button" onclick="setTerm(48)" id="term-btn-48" class="py-2.5 rounded-lg text-xs font-mono font-medium border border-neutral-800 bg-[#171d26] text-neutral-400 hover:text-white transition">48</button>
+          <button type="button" onclick="setTerm(60)" id="term-btn-60" class="py-2.5 rounded-lg text-xs font-mono font-medium border border-neutral-800 bg-[#171d26] text-neutral-400 hover:text-white transition">60</button>
+          <button type="button" onclick="setTerm(72)" id="term-btn-72" class="py-2.5 rounded-lg text-xs font-mono font-medium border border-red-500 bg-red-600/20 text-red-200 transition">72</button>
+          <button type="button" onclick="setTerm(84)" id="term-btn-84" class="py-2.5 rounded-lg text-xs font-mono font-medium border border-neutral-800 bg-[#171d26] text-neutral-400 hover:text-white transition">84</button>
+          <button type="button" onclick="setTerm(96)" id="term-btn-96" class="py-2.5 rounded-lg text-xs font-mono font-medium border border-neutral-800 bg-[#171d26] text-neutral-400 hover:text-white transition">96</button>
+        </div>
+      </div>
+
+      <!-- Interest Rate with SA Prime Shortcuts -->
+      <div class="flex flex-col gap-2">
+        <div class="flex justify-between items-center text-xs text-neutral-300">
+          <span class="font-medium">Interest Rate (Linked)</span>
+          <span id="rate-display" class="font-mono bg-[#1b222d] border border-neutral-700/80 px-2 py-0.5 rounded text-red-400 font-bold text-xs">
+            14.25%
+          </span>
+        </div>
+        <input type="range" id="rate-slider" min="8.0" max="22.0" step="0.25" value="14.25" />
+        <div class="flex justify-between items-center gap-1 overflow-x-auto scrollbar-none pt-0.5">
+          <button type="button" onclick="setRateVal(10.75)" class="text-[10px] px-2 py-1 rounded border border-neutral-700 bg-neutral-800 text-neutral-300 whitespace-nowrap">Prime - 1%</button>
+          <button type="button" onclick="setRateVal(11.75)" class="text-[10px] px-2 py-1 rounded border border-neutral-700 bg-neutral-800 text-neutral-300 whitespace-nowrap">Prime</button>
+          <button type="button" onclick="setRateVal(12.75)" class="text-[10px] px-2 py-1 rounded border border-neutral-700 bg-neutral-800 text-neutral-300 whitespace-nowrap">Prime + 1%</button>
+          <button type="button" onclick="setRateVal(14.25)" class="text-[10px] px-2 py-1 rounded border border-neutral-700 bg-neutral-800 text-neutral-300 whitespace-nowrap">Prime + 2.5%</button>
+        </div>
+      </div>
+
+      <!-- Balloon / Residual Value Slider -->
+      <div class="flex flex-col gap-2">
+        <div class="flex justify-between items-center text-xs text-neutral-300">
+          <span class="font-medium">Balloon / Residual Value</span>
+          <span id="balloon-display" class="font-mono bg-[#1b222d] border border-neutral-700/80 px-2 py-0.5 rounded text-amber-400 font-bold text-xs">
+            35% (R 0)
+          </span>
+        </div>
+        <input type="range" id="balloon-slider" min="0" max="40" step="5" value="35" />
+        <div class="flex justify-between text-[10px] text-neutral-500 font-mono">
+          <span>0% (Full Payoff)</span>
+          <span>40% (Max)</span>
+        </div>
+      </div>
+
+      <!-- Bank Mandatory Fees Toggle -->
+      <div class="flex flex-col justify-between p-3.5 rounded-lg bg-[#141922] border border-neutral-800 sm:col-span-2 lg:col-span-2">
+        <div>
+          <div class="text-xs font-semibold text-neutral-200 flex items-center justify-between mb-1">
+            <span>NCA Bank Service Fees</span>
+            <input type="checkbox" id="fees-toggle" checked class="w-4 h-4 text-red-600 rounded cursor-pointer" />
+          </div>
+          <p class="text-[10px] text-neutral-400 leading-relaxed">
+            Bank Initiation Fee: <strong>R 1,207.50</strong> (incl. VAT) capitalized into principal + Monthly admin fee: <strong>R 69.00/pm</strong>.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer Disclaimers -->
+    <div class="mt-8 pt-4 border-t border-neutral-800 flex flex-col sm:flex-row justify-between items-center text-xs text-neutral-500 gap-3">
+      <div class="text-center sm:text-left text-[11px] leading-relaxed">
+        *Terms and conditions apply. Calculations are for illustration purposes and subject to credit approval. BB Motor Group is an authorised FSP (49995).
+      </div>
+      <button onclick="resetDefaults()" class="text-neutral-400 hover:text-white transition text-xs font-medium whitespace-nowrap active:scale-95 bg-neutral-800 px-3 py-1.5 rounded-lg">
+        Reset to Defaults
+      </button>
+    </div>
+
+  </div>
+
+  <script>
+    // Nissan SA 2026 Price List Model Data (Effective 21 July 2026)
+    const nissanModels = [
+      { id: 1, name: "Magnite Panel Van (MOVE)", category: "Magnite", mmCode: "47012025", price: 229900 },
+      { id: 2, name: "Magnite 1.0 Visia MT", category: "New Magnite", mmCode: "47012101", price: 252200 },
+      { id: 3, name: "Magnite 1.0 Visia AMT", category: "New Magnite", mmCode: "47012106", price: 269200 },
+      { id: 4, name: "Magnite 1.0 Acenta MT", category: "New Magnite", mmCode: "47012111", price: 277300 },
+      { id: 5, name: "Magnite 1.0 Acenta AMT", category: "New Magnite", mmCode: "47012116", price: 294400 },
+      { id: 6, name: "Magnite 1.0T Visia MT", category: "New Magnite Turbo", mmCode: "47012181", price: 301900 },
+      { id: 7, name: "Magnite 1.0T Acenta MT", category: "New Magnite Turbo", mmCode: "47012201", price: 329900 },
+      { id: 8, name: "Magnite 1.0T Acenta CVT", category: "New Magnite Turbo", mmCode: "47012211", price: 344900 },
+      { id: 9, name: "Magnite 1.0T KURO CVT", category: "New Magnite Turbo", mmCode: "47012218", price: 352900 },
+      { id: 10, name: "Magnite 1.0T Acenta Plus CVT", category: "New Magnite Turbo", mmCode: "47012231", price: 370900 },
+      { id: 11, name: "Navara 2.5D XE MT SC (4x2)", category: "Navara Single Cab", mmCode: "47047485", price: 427100 },
+      { id: 12, name: "MY25 Navara 2.5D XE MT SC (4x2)", category: "Navara Single Cab", mmCode: "47047485", price: 433500 },
+      { id: 13, name: "MY25 Navara 2.5D XE MT DC (4x2)", category: "Navara Double Cab", mmCode: "47047540", price: 493600 },
+      { id: 14, name: "MY25 Navara 2.5D SE MT SC (4x2)", category: "Navara Single Cab", mmCode: "47047490", price: 510400 },
+      { id: 15, name: "MY25 Navara 2.5D 4x4 XE MT DC", category: "Navara Double Cab", mmCode: "47047550", price: 567000 },
+      { id: 16, name: "MY25 Navara 2.5D 4x4 SE MT SC", category: "Navara Single Cab", mmCode: "47047492", price: 592600 },
+      { id: 17, name: "MY25 Navara 2.5D SE Plus MT DC (4x2)", category: "Navara Double Cab", mmCode: "47047578", price: 595000 },
+      { id: 18, name: "MY25 Navara 2.5D SE Plus AT DC (4x2)", category: "Navara Double Cab", mmCode: "47047579", price: 618200 },
+      { id: 19, name: "MY25 Navara 2.5D LE AT DC (4x2)", category: "Navara Double Cab", mmCode: "47047582", price: 660200 },
+      { id: 20, name: "MY25 Navara 2.5D 4x4 SE Plus MT DC", category: "Navara Double Cab", mmCode: "47047580", price: 678000 },
+      { id: 21, name: "MY25 Navara 2.5D Stealth AT DC (4x2)", category: "Navara Double Cab", mmCode: "47047584", price: 695200 },
+      { id: 22, name: "X-Trail 2.5 Visia CVT", category: "X-Trail", mmCode: "47084351", price: 699000 },
+      { id: 23, name: "MY25 Navara 2.5D LE Plus AT DC (4x2)", category: "Navara Double Cab", mmCode: "47047587", price: 703800 },
+      { id: 24, name: "MY25 Navara 2.5D 4x4 LE AT DC", category: "Navara Double Cab", mmCode: "47047585", price: 744200 },
+      { id: 25, name: "X-Trail 2.5 Acenta CVT", category: "X-Trail", mmCode: "47084371", price: 763900 },
+      { id: 26, name: "MY25 Navara 2.5D 4x4 Stealth AT DC", category: "Navara Double Cab", mmCode: "47047586", price: 779200 },
+      { id: 27, name: "MY25 Navara 2.5D PRO-2X AT DC (4x2)", category: "Navara Double Cab", mmCode: "47047600", price: 782200 },
+      { id: 28, name: "MY25 Navara 2.5D 4x4 LE Plus AT DC", category: "Navara Double Cab", mmCode: "47047589", price: 785700 },
+      { id: 29, name: "MY25 X-Trail 2.5 Acenta Plus CVT 7s 4WD", category: "X-Trail", mmCode: "47084385", price: 812900 },
+      { id: 30, name: "X-Trail 2.5 Acenta Plus CVT 7s 4WD", category: "X-Trail", mmCode: "47084386", price: 824900 },
+      { id: 31, name: "MY25 Navara 2.5D 4x4 PRO-4X AT DC", category: "Navara Double Cab", mmCode: "47047615", price: 844000 },
+      { id: 32, name: "MY25 Navara 2.5D 4x4 PRO-4X Warrior AT DC", category: "Navara Double Cab", mmCode: "47047620", price: 924000 }
+    ];
+
+    // State Variables
+    let selectedModel = nissanModels[7]; // Default: Magnite 1.0T Acenta CVT (R344,900)
+    let baseRetailPrice = selectedModel.price;
+    let currentTerm = 72; // Default to 72 months
+    const INITIATION_FEE = 1207.50;
+    const MONTHLY_ADMIN_FEE = 69.00;
+    const VAT_RATE = 0.15;
+
+    // Extras State Array
+    let extrasList = [
+      { id: 'ext-1', name: 'Service & Delivery', amount: 4500, isVatable: true },
+      { id: 'ext-2', name: 'Smash & Grab Film', amount: 2500, isVatable: true },
+      { id: 'ext-3', name: 'Licence & Reg', amount: 2500, isVatable: false }
+    ];
+
+    // DOM Elements
+    const modelSelect = document.getElementById('model-select');
+    const selectedCodeBadge = document.getElementById('selected-code-badge');
+    const basePriceInput = document.getElementById('base-price-input');
+    const grossOtrDisplay = document.getElementById('gross-otr-display');
+    const extrasContainer = document.getElementById('extras-container');
+    const extrasTotalBadge = document.getElementById('extras-total-badge');
+
+    const depositInput = document.getElementById('deposit-input');
+    const depositPctLabel = document.getElementById('deposit-pct-label');
+    const rateSlider = document.getElementById('rate-slider');
+    const rateDisplay = document.getElementById('rate-display');
+    const balloonSlider = document.getElementById('balloon-slider');
+    const balloonDisplay = document.getElementById('balloon-display');
+    const feesToggle = document.getElementById('fees-toggle');
+    const termLabel = document.getElementById('term-label');
+
+    const metricMonthly = document.getElementById('metric-monthly');
+    const metricMonthlySub = document.getElementById('metric-monthly-sub');
+    const metricInterest = document.getElementById('metric-interest');
+    const metricInterestSub = document.getElementById('metric-interest-sub');
+    const metricPrincipal = document.getElementById('metric-principal');
+    const metricBalloonSub = document.getElementById('metric-balloon-sub');
+    const metricQualifier = document.getElementById('metric-qualifier');
+
+    // Formatters
+    function formatZAR(val) {
+      return 'R ' + Math.round(val || 0).toLocaleString('en-ZA');
+    }
+
+    // Populate Nissan Dropdown
+    function populateDropdown() {
+      modelSelect.innerHTML = '';
+      const categories = [...new Set(nissanModels.map(m => m.category))];
+      
+      categories.forEach(cat => {
+        const group = document.createElement('optgroup');
+        group.label = cat.toUpperCase();
+        
+        nissanModels.filter(m => m.category === cat).forEach(model => {
+          const opt = document.createElement('option');
+          opt.value = model.id;
+          opt.textContent = `${model.name} — R ${model.price.toLocaleString('en-ZA')}`;
+          if (model.id === selectedModel.id) opt.selected = true;
+          group.appendChild(opt);
+        });
+        
+        modelSelect.appendChild(group);
+      });
+      basePriceInput.value = baseRetailPrice;
+    }
+
+    // Dynamic Extras Renderer
+    function renderExtras() {
+      extrasContainer.innerHTML = '';
+      extrasList.forEach((extra) => {
+        const row = document.createElement('div');
+        row.className = 'dynamic-list-enter flex flex-col sm:flex-row sm:items-center gap-2 p-2 bg-[#1a212d] border border-neutral-700/50 rounded-lg';
+        
+        row.innerHTML = `
+          <div class="flex-1 flex items-center gap-2">
+            <input type="text" value="${extra.name}" onchange="updateExtra('${extra.id}', 'name', this.value)" class="w-full bg-transparent text-xs text-white font-medium focus:outline-none border-b border-transparent focus:border-red-500 transition px-1 py-1" placeholder="Extra Name" />
+          </div>
+          <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+            <label class="flex items-center gap-1.5 cursor-pointer bg-neutral-800/80 px-2 py-1.5 rounded">
+              <input type="checkbox" ${extra.isVatable ? 'checked' : ''} onchange="updateExtra('${extra.id}', 'isVatable', this.checked)" class="w-3.5 h-3.5 text-red-600 rounded bg-neutral-900 border-neutral-600" />
+              <span class="text-[10px] text-neutral-400 font-mono">${extra.isVatable ? '+15% VAT' : 'No VAT'}</span>
+            </label>
+            <div class="flex items-center bg-[#11151c] border border-neutral-700 rounded px-2 py-1">
+              <span class="text-[10px] text-neutral-500 mr-1 font-mono">R</span>
+              <input type="number" value="${extra.amount}" oninput="updateExtra('${extra.id}', 'amount', this.value)" class="w-20 bg-transparent text-xs text-right text-white font-mono focus:outline-none" />
+            </div>
+            <button onclick="removeExtra('${extra.id}')" class="p-1.5 text-neutral-500 hover:text-red-400 hover:bg-red-500/10 rounded transition">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            </button>
+          </div>
+        `;
+        extrasContainer.appendChild(row);
+      });
+      updateGrossPrice();
+    }
+
+    function addExtra() {
+      extrasList.push({
+        id: 'ext-' + Date.now(),
+        name: 'Custom Accessory',
+        amount: 1500,
+        isVatable: true
+      });
+      renderExtras();
+    }
+
+    function removeExtra(id) {
+      extrasList = extrasList.filter(e => e.id !== id);
+      renderExtras();
+    }
+
+    function updateExtra(id, field, value) {
+      const extra = extrasList.find(e => e.id === id);
+      if (extra) {
+        if (field === 'amount') extra.amount = parseFloat(value) || 0;
+        else extra[field] = value;
+      }
+      if(field === 'amount' || field === 'isVatable') updateGrossPrice();
+    }
+
+    // Gross Price Calculation
+    let currentGrossOTR = 0;
+    function updateGrossPrice() {
+      let totalExtrasInclVat = 0;
+      
+      extrasList.forEach(extra => {
+        if (extra.isVatable) {
+          totalExtrasInclVat += extra.amount * (1 + VAT_RATE);
+        } else {
+          totalExtrasInclVat += extra.amount;
+        }
+      });
+
+      extrasTotalBadge.textContent = `+${formatZAR(totalExtrasInclVat)} incl. VAT`;
+      
+      const basePrice = parseFloat(basePriceInput.value) || 0;
+      currentGrossOTR = basePrice + totalExtrasInclVat;
+      grossOtrDisplay.textContent = formatZAR(currentGrossOTR);
+      
+      calculateFinance();
+    }
+
+    // Setters for Controls
+    function setTerm(term) {
+      currentTerm = term;
+      termLabel.textContent = `${term}m / ${(term / 12).toFixed(1)} yrs`;
+
+      [36, 48, 60, 72, 84, 96].forEach(t => {
+        const btn = document.getElementById(`term-btn-${t}`);
+        if (t === term) {
+          btn.className = "py-2.5 rounded-lg text-xs font-mono font-bold border border-red-500 bg-red-600/20 text-red-200 transition";
+        } else {
+          btn.className = "py-2.5 rounded-lg text-xs font-mono font-medium border border-neutral-800 bg-[#171d26] text-neutral-400 hover:text-white transition";
+        }
+      });
+      calculateFinance();
+    }
+
+    function setRateVal(val) {
+      rateSlider.value = val;
+      calculateFinance();
+    }
+
+    function setDepositPct(pct) {
+      depositInput.value = Math.round(currentGrossOTR * (pct / 100));
+      calculateFinance();
+    }
+
+    // Core NCA Amortization Engine
+    function calculateFinance() {
+      const dep = Math.min(currentGrossOTR, Math.max(0, parseFloat(depositInput.value) || 0));
+      const rate = Math.max(0.01, parseFloat(rateSlider.value) || 14.25);
+      const balloonPct = parseInt(balloonSlider.value) || 0;
+      const includeFees = feesToggle.checked;
+      const n = currentTerm;
+
+      // Update Slider Indicators
+      rateDisplay.textContent = `${rate.toFixed(2)}%`;
+      const depPct = currentGrossOTR > 0 ? ((dep / currentGrossOTR) * 100).toFixed(0) : 0;
+      depositPctLabel.textContent = `${depPct}%`;
+
+      const balloonVal = currentGrossOTR * (balloonPct / 100);
+      balloonDisplay.textContent = `${balloonPct}% (${formatZAR(balloonVal)})`;
+
+      // Principal Financed
+      const principalDebt = Math.max(0, (currentGrossOTR - dep) + (includeFees ? INITIATION_FEE : 0));
+      const monthlyRate = (rate / 100) / 12;
+
+      // Monthly PMT Formula
+      let baseMonthly = 0;
+      if (principalDebt > 0) {
+        const discountFactor = Math.pow(1 + monthlyRate, -n);
+        const balloonPV = balloonVal * Math.pow(1 + monthlyRate, -n);
+        const amortisedPrincipal = principalDebt - balloonPV;
+        baseMonthly = (amortisedPrincipal * monthlyRate) / (1 - discountFactor);
+      }
+
+      const monthlyAdmin = includeFees ? MONTHLY_ADMIN_FEE : 0;
+      const finalMonthly = baseMonthly + monthlyAdmin;
+
+      // Totals
+      const totalInstallments = baseMonthly * n;
+      const totalInterest = Math.max(0, totalInstallments + balloonVal - principalDebt);
+      const totalBankFees = includeFees ? (INITIATION_FEE + (monthlyAdmin * n)) : 0;
+
+      // Deal Builder Qualifier (30% Rule)
+      const requiredIncome = finalMonthly / 0.30;
+
+      // Update UI Metrics
+      metricMonthly.textContent = formatZAR(finalMonthly);
+      metricMonthlySub.textContent = includeFees ? `Includes R${MONTHLY_ADMIN_FEE}/pm bank fee` : 'Excluding service fees';
+
+      metricInterest.textContent = formatZAR(totalInterest + totalBankFees);
+      metricInterestSub.textContent = `Interest: ${formatZAR(totalInterest)} • Fees: ${formatZAR(totalBankFees)}`;
+
+      metricPrincipal.textContent = formatZAR(principalDebt);
+      metricBalloonSub.textContent = balloonPct > 0 
+        ? `Balloon Due: ${formatZAR(balloonVal)} (${balloonPct}%)` 
+        : `No balloon payment (Fully amortised)`;
+        
+      metricQualifier.textContent = `${formatZAR(requiredIncome)} /pm`;
+    }
+
+    // Event Listeners
+    modelSelect.addEventListener('change', (e) => {
+      const model = nissanModels.find(m => m.id === parseInt(e.target.value));
+      if (model) {
+        selectedModel = model;
+        baseRetailPrice = model.price;
+        basePriceInput.value = baseRetailPrice;
+        selectedCodeBadge.textContent = `M&M: ${model.mmCode}`;
+        updateGrossPrice();
+        // Recalculate deposit based on new gross
+        const currentDepPct = parseFloat(depositPctLabel.textContent) || 0;
+        depositInput.value = Math.round(currentGrossOTR * (currentDepPct / 100));
+        calculateFinance();
+      }
+    });
+
+    basePriceInput.addEventListener('input', () => updateGrossPrice());
+    depositInput.addEventListener('input', () => calculateFinance());
+    rateSlider.addEventListener('input', () => calculateFinance());
+    balloonSlider.addEventListener('input', () => calculateFinance());
+    feesToggle.addEventListener('change', () => calculateFinance());
+
+    function resetDefaults() {
+      selectedModel = nissanModels[7];
+      baseRetailPrice = selectedModel.price;
+      populateDropdown();
+      selectedCodeBadge.textContent = `M&M: ${selectedModel.mmCode}`;
+      
+      // Reset Extras State
+      extrasList = [
+        { id: 'ext-1', name: 'Service & Delivery', amount: 4500, isVatable: true },
+        { id: 'ext-2', name: 'Smash & Grab Film', amount: 2500, isVatable: true },
+        { id: 'ext-3', name: 'Licence & Reg', amount: 2500, isVatable: false }
+      ];
+      renderExtras();
+
+      // Updated defaults: Prime + 2.5% (14.25%), 35% Balloon, 0% Deposit, 72 Months, Fees enabled
+      rateSlider.value = 14.25;
+      balloonSlider.value = 35;
+      feesToggle.checked = true;
+      setTerm(72);
+
+      updateGrossPrice();
+      depositInput.value = 0; // 0% Deposit default
+      calculateFinance();
+    }
+
+    // Initial Execution on Load
+    populateDropdown();
+    renderExtras();
+    
+    // Set requested initial startup state
+    rateSlider.value = 14.25; // Prime + 2.5%
+    balloonSlider.value = 35; // 35% Balloon
+    feesToggle.checked = true;
+    setTerm(72);              // 72 Months
+    
+    updateGrossPrice();
+    depositInput.value = 0;   // 0% Deposit
+    calculateFinance();
+  </script>
+</body>
+</html>
